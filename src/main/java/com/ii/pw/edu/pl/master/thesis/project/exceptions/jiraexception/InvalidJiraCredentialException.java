@@ -1,0 +1,10 @@
+package com.ii.pw.edu.pl.master.thesis.project.exceptions.jiraexception;
+
+import com.ii.pw.edu.pl.master.thesis.project.exceptions.CustomException;
+import org.springframework.http.HttpStatus;
+
+public class InvalidJiraCredentialException extends CustomException {
+    public InvalidJiraCredentialException(String reason) {
+        super(reason, HttpStatus.UNAUTHORIZED);
+    }
+}
