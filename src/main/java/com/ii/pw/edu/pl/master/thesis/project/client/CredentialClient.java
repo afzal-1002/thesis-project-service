@@ -17,8 +17,6 @@ public interface CredentialClient {
     @PostMapping
     UserCredentialResponse addCredential(@RequestBody UserCredentialRequest request);
 
-    @GetMapping("/me")
-    JiraUserMeResponse me(@RequestParam String username);
 
     @GetMapping("/{id}")
     UserCredentialResponse getById(@PathVariable Long id);
@@ -29,8 +27,6 @@ public interface CredentialClient {
     @GetMapping("/by-username")
     UserCredentialResponse getByUsername(@RequestParam String username);
 
-    @GetMapping("/me/username/{username}")
-    UserCredentialResponse getCredentialByUserName(@PathVariable String username);
 
     @GetMapping("/user-summary/by-account-id")
      UserSummary getUserSummaryByAccountId(@RequestParam String accountId);

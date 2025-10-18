@@ -14,10 +14,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     Optional<Project> findByKey(String key);
     Optional<Project> findByJiraIdAndBaseUrl(String jiraId, String baseUrl);
 
-    @EntityGraph(attributePaths = "users")
+    @EntityGraph(attributePaths = "projectUsers")
     Optional<Project> findByKeyAndBaseUrl(String key, String baseUrl);
 
-    @EntityGraph(attributePaths = "users")
+    @EntityGraph(attributePaths = "projectUsers")
     List<Project> findAllByBaseUrl(String baseUrl);
 
 

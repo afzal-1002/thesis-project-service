@@ -41,12 +41,20 @@ public enum JiraApiEndpoint {
     PROJECT_VALIDATE_VALID_KEY("/projectvalidate/validProjectKey"),
     PROJECT_VALIDATE_VALID_NAME("/projectvalidate/validProjectName");
 
+
+
+
     private final String path;
     JiraApiEndpoint(String path) { this.path = path; }
 
     public String buildUrl(String baseUrl, String version) {
         return baseUrl + "/rest/api/" + version + this.path;
     }
+
+    public static final String PROJECT_EXPAND = String.join(",",
+            "lead","issueTypes","components","roles","versions",
+            "description","insight","projectKeys","url","permissions"
+    );
 
 
 }

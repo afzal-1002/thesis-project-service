@@ -23,8 +23,11 @@ public class Project {
     @Column(name = "jira_id")
     private String jiraId;
 
-    @Column(name = "project_key", unique = true, nullable = false, length = 32)
+    @Column(name = "project_key", nullable = false, length = 32)
     private String key;
+
+    @Column(name = "base_url")
+    private String baseUrl;
 
     @Column(name = "project_name", nullable = false, length = 200)
     private String name;
@@ -37,12 +40,6 @@ public class Project {
 
     @Column(name = "project_type_key")
     private String projectTypeKey;
-
-    @Column(name = "base_url")
-    private String baseUrl;
-
-    @Column(name = "is_simplified", nullable = false)
-    private boolean simplified = false;
 
     // External reference to user-service
     @Column(name = "lead_user_id", length = 64)
@@ -84,4 +81,5 @@ public class Project {
         projectIssues.remove(link);
         link.setProject(null);
     }
+
 }

@@ -19,6 +19,9 @@ public class ProjectIssue {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
-    @Column(name = "issue_key", nullable = false, length = 64)
-    private List<String> issueKey;
+    @ElementCollection
+    @CollectionTable(name = "project_issue_keys", joinColumns = @JoinColumn(name = "project_issue_id"))
+    @Column(name = "issue_key", length = 64, nullable = false)
+    private java.util.List<String> issueKey;
 }
+

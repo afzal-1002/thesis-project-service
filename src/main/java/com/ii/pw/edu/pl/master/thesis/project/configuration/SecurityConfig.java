@@ -56,7 +56,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of("http://localhost:4200"));
         config.setAllowCredentials(true);
         config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("*")); // allow any header Angular may send
+        config.setAllowedHeaders(List.of("*")); // allow any header Angular may send
         config.setExposedHeaders(Arrays.asList("Authorization","Set-Cookie")); // optional
         config.setMaxAge(3600L);
 
@@ -66,8 +66,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   CorsConfigurationSource corsConfigurationSource) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
                 .cors(c -> c.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -88,8 +87,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/wut/users/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/wut/users/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/wut/projects/users").permitAll()
-
-
 
                         // Public READ-ONLY Site endpoints
                         .requestMatchers(HttpMethod.GET, "/api/wut/sites/**").permitAll()
@@ -115,9 +112,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(
-            UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder) {
+    public AuthenticationProvider authenticationProvider( UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);

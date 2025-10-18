@@ -9,10 +9,10 @@ import java.time.OffsetDateTime;
 @Builder
 public class UserCredentialResponse {
     private Long userId;
-    private String jiraUsername;
+    private String username;
     private String accountId;
     private String token;
-    private String jiraBaseUrl;
+    private String baseUrl;
 
     private OffsetDateTime createdAt;
     private OffsetDateTime expiresAt;

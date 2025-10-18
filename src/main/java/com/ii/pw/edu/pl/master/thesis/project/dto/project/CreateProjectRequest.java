@@ -1,10 +1,14 @@
 package com.ii.pw.edu.pl.master.thesis.project.dto.project;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data
+@Data @Builder @NoArgsConstructor
+@AllArgsConstructor
 public class CreateProjectRequest {
-    private String key;                // e.g. "BUG01"
+    private String key;
     private String projectName;               // e.g. "Bug Demo Project"
     private String projectTypeKey;     // "software" | "business" | "service_desk"
     private String description;        // optional

@@ -3,7 +3,7 @@ package com.ii.pw.edu.pl.master.thesis.project.dto.project;
 import lombok.Data;
 
 @Data
-public class SyncProjectRequest {
-    private String projectKey;
+public  class ListProjectsRequest {
     private String username;
+    private String baseUrl;
 }
