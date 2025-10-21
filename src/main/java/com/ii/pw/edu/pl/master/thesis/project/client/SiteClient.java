@@ -1,73 +1,50 @@
 package com.ii.pw.edu.pl.master.thesis.project.client;
 
 
-import com.ii.pw.edu.pl.master.thesis.project.dto.user.UserSummary;
+import com.ii.pw.edu.pl.master.thesis.project.configuration.FeignSecurityConfiguration;
 import com.ii.pw.edu.pl.master.thesis.project.dto.site.AddSiteRequest;
-import com.ii.pw.edu.pl.master.thesis.project.dto.site.SiteProjectSummary;
 import com.ii.pw.edu.pl.master.thesis.project.dto.site.SiteResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
-@FeignClient( name = "user-service",  contextId = "siteClient",
-        url = "${user.service.base-url}",  path = "/api/wut/sites"
-)
+@FeignClient(name = "user-service",
+        contextId = "SiteClient",
+        url = "${user.service.url}",
+        path = "/api/wut/sites",
+        configuration = FeignSecurityConfiguration.class)
 public interface SiteClient {
 
-    // CREATE
     @PostMapping
-    SiteResponse addSite(@RequestBody AddSiteRequest request,
-                         @RequestHeader("username") String username,
-                         @RequestHeader(value = "token", required = false) String token);
+    SiteResponse addSite(@RequestBody AddSiteRequest request);
 
-    // READ
     @GetMapping("/{siteId}")
-    SiteResponse getSiteById(@PathVariable Long siteId);
+    SiteResponse getSiteById(@PathVariable("siteId") Long siteId);
 
     @GetMapping("/by-url")
-    Optional<SiteResponse> getSiteByURL(@RequestParam("baseURL") String baseURL,
-                                        @RequestHeader("username") String username);
+    SiteResponse getSiteByURL(@RequestParam("baseURL") String baseURL);
 
     @GetMapping("/by-name")
-    Optional<SiteResponse> getSiteByName(@RequestParam("siteName") String siteName,
-                                         @RequestHeader("username") String username);
+    SiteResponse getSiteByName(@RequestParam("siteName") String siteName);
 
-    @GetMapping
-    List<SiteResponse> listSitesForCurrentUser(@RequestHeader("username") String username);
+    @GetMapping("/current-user")
+    List<SiteResponse> listMySites();
 
-    @GetMapping("/by-username/{username}")
-    List<SiteResponse> listSitesForUser(@PathVariable("username") String username);
-
-    // AGGREGATIONS
-    @GetMapping("/projects/by-site-name")
-    List<SiteProjectSummary> getAllProjectsBySiteName(@RequestParam("siteName") String siteName);
-
-    @GetMapping("/{siteId}/users")
-    List<UserSummary> getAllUsersForSiteId(@PathVariable Long siteId);
-
-    @GetMapping("/users/by-site-name")
-    List<UserSummary> getAllUsersForSiteName(@RequestParam("siteName") String siteName);
-
-    // UPDATE
     @PutMapping("/{siteId}/name")
-    SiteResponse updateSiteName(@PathVariable Long siteId,
-                                @RequestParam("newSiteName") String newSiteName,
-                                @RequestHeader("username") String username);
+    SiteResponse updateSiteName(@PathVariable("siteId") Long siteId,
+                                @RequestParam("newSiteName") String newSiteName);
 
     @PutMapping("/{siteId}/url")
-    SiteResponse updateSiteURL(@PathVariable Long siteId,
-                               @RequestParam("newBaseURL") String newBaseURL,
-                               @RequestHeader("username") String username);
+    SiteResponse updateSiteURL(@PathVariable("siteId") Long siteId,
+                               @RequestParam("newBaseURL") String newBaseURL);
 
-    // DELETE
     @DeleteMapping("/{siteId}")
-    void deleteSiteById(@PathVariable Long siteId, @RequestHeader("username") String username);
+    void deleteSiteById(@PathVariable("siteId") Long siteId);
 
     @DeleteMapping("/by-name")
-    void deleteSiteByName(@RequestParam("siteName") String siteName, @RequestHeader("username") String username);
+    void deleteSiteByName(@RequestParam("siteName") String siteName);
 
     @DeleteMapping("/by-url")
-    void deleteSiteByURL(@RequestParam("baseURL") String baseURL, @RequestHeader("username") String username);
+    void deleteSiteByURL(@RequestParam("baseURL") String baseURL);
 }

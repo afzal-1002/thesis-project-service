@@ -1,33 +1,49 @@
 package com.ii.pw.edu.pl.master.thesis.project.service;
 
+
 import com.ii.pw.edu.pl.master.thesis.project.dto.project.*;
-import com.ii.pw.edu.pl.master.thesis.project.model.Project;
-import com.ii.pw.edu.pl.master.thesis.project.model.StyleOption;
 
 import java.util.List;
 
 public interface ProjectService {
 
     ProjectResponse createProjectLocalOnly(CreateProjectRequest request);
+
     JiraProjectResponse createProjectJira(CreateProjectRequest request);
+
     ProjectResponse createProjectJiraAndLocal(CreateProjectRequest request);
-    List<JiraProjectResponse> getAllProjectsFromJira(ListProjectsRequest request);
-    List<ProjectResponse> getAllProjectsFromLocalDb(ListProjectsRequest request);
+
+    List<JiraProjectResponse> getAllProjectsFromJira(String request);
+
+    List<JiraProjectResponse> getAllProjectsFromJiraForCurrentUserUrl();
 
 
-     JiraProjectResponse fetchFullProject(String baseUrl,  String idOrKey, String username, String token);
+    JiraProjectResponse fetchFullProject(String baseUrl, String idOrKey, String jiraUser, String token);
+
+    List<ProjectResponse> getAllProjectsFromLocalDb(String request);
+
     ProjectResponse updateProject(Long id, UpdateProjectRequest request);
-    int deleteAllLocalProjectsForCurrentBaseUrl(String baseUrl);
-    boolean deleteLocalProjectByKey(DeleteProjectRequest request) ;
-    void deleteJiraProjectByKeyOrId(String projectKeyOrId, String username);
-     String deleteProjectFromJiraAndLocalDb(DeleteProjectRequest request);
 
-     List<ProjectResponse> syncAllProjects(ListProjectsRequest request);
-     ProjectResponse syncProjectByKeyOrId(SyncProjectRequest request);
-     ProjectResponse syncProjectFromJira(SyncProjectRequest request);
-     ProjectResponse setProjectLead(SetProjectLeadRequest request);
-     ProjectResponse syncProjectFromLocalToJira(SyncProjectRequest request);
-     List<ProjectResponse> syncAllProjectsFromLocalToJira(SyncProjectRequest request);
+    int deleteAllLocalProjectsForCurrentBaseUrl(String ignored);
 
+    boolean deleteLocalProjectByKey(String projectKey);
 
+    /** OLD: deleteJiraProjectByKeyOrId(String projectKeyOrId, String username) */
+    void deleteJiraProjectByKeyOrId(String projectKeyOrId);
+
+    String deleteProjectFromJiraAndLocalDb(String request);
+
+    List<ProjectResponse> syncAllProjectsFromJira();
+
+    ProjectResponse syncProjectByKeyOrId(SyncProjectRequest request);
+
+    /** OLD: took username from request; now it must not depend on username */
+    ProjectResponse syncProjectFromJira(SyncProjectRequest request);
+
+    /** Local → Jira sync without username in request */
+    ProjectResponse syncProjectFromLocalToJira(SyncProjectRequest request);
+
+    List<ProjectResponse> syncAllProjectsFromLocalToJira();
+
+    public ProjectResponse setProjectLead(SetProjectLeadRequest request);
 }

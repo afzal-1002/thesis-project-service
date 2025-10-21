@@ -1,5 +1,6 @@
 package com.ii.pw.edu.pl.master.thesis.project.mapper;
 
+import com.ii.pw.edu.pl.master.thesis.project.client.CredentialClient;
 import com.ii.pw.edu.pl.master.thesis.project.client.UserClient;
 import com.ii.pw.edu.pl.master.thesis.project.dto.issue.IssueSummary;
 import com.ii.pw.edu.pl.master.thesis.project.dto.project.ProjectResponse;
@@ -17,63 +18,64 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ProjectMapper {
 
-    private final UserClient userClient;     // <- adjust to your client
+    private final UserClient userClient;
+    private final CredentialClient credentialClient;
 //    private final IssueService issueService; // <- or remove if you don’t have issues yet
 
     public ProjectResponse fromProjectToResponse(Project project) {
         if (project == null) return null;
 
-        // Lead
+        // ── Lead ─────────────────────────────────────────
         UserSummary lead = null;
-        if (project.getLeadUserId() != null && !project.getLeadUserId().isBlank()) {
+        String leadIdRaw = project.getLeadUserId();
+        if (leadIdRaw != null && !leadIdRaw.isBlank()) {
             try {
-                Long leadId = Long.parseLong(project.getLeadUserId());
-                lead = userClient.getUserById(leadId); // rename to your actual method
-            } catch (NumberFormatException ignored) {
-                // leadUserId wasn’t a Long; leave null
-            } catch (Exception ignored) {
-                // remote call failed; leave null
-            }
+                // Try local numeric user id first
+                Long localId = Long.parseLong(leadIdRaw.trim());
+                lead = userClient.getUserById(localId);
+            } catch (NumberFormatException nfe) {
+                // Not a number → treat as Jira accountId
+                try {
+                    lead = credentialClient.getUserSummaryByAccountId(leadIdRaw.trim());
+                } catch (Exception ignored) { /* leave null */ }
+            } catch (Exception ignored) { /* leave null */ }
         }
 
-        // Users (project members)
+        // ── Members ──────────────────────────────────────
         List<UserSummary> users = new ArrayList<>();
         if (project.getProjectUsers() != null) {
             for (ProjectUser pu : project.getProjectUsers()) {
                 if (pu == null || pu.getUserId() == null || pu.getUserId().isBlank()) continue;
                 try {
-                    Long uid = Long.parseLong(pu.getUserId());
-                    UserSummary u = userClient.getUserById(uid); // rename to your actual method
+                    Long uid = Long.parseLong(pu.getUserId().trim());
+                    UserSummary u = userClient.getUserById(uid);
                     if (u != null) users.add(u);
-                } catch (Exception ignored) {
-                    // skip missing/bad ids
-                }
+                } catch (NumberFormatException nfe) {
+                    // fallback: Jira accountId
+                    try {
+                        UserSummary u = credentialClient.getUserSummaryByAccountId(pu.getUserId().trim());
+                        if (u != null) users.add(u);
+                    } catch (Exception ignored) {}
+                } catch (Exception ignored) {}
             }
-            // de-dup, just in case
             users = users.stream().filter(Objects::nonNull).distinct().toList();
         }
 
-        // Issues
-        List<IssueSummary> issues = new ArrayList<>();
-        try {
-            // Prefer a “by project key” method if you have one
-//            issues = issueService.findSummariesByProjectKey(project.getKey());
-            issues = new ArrayList<>();
-        } catch (Exception ignored) {
-            // leave empty list if not available
-        }
+        // ── Issues (placeholder) ─────────────────────────
+        List<IssueSummary> issues = List.of(); // keep as-is unless you wire it
 
-
+        // ── Map all fields (include projectTypeKey!) ─────
         return ProjectResponse.builder()
                 .id(project.getId())
+                .key(project.getKey())
                 .name(project.getName())
                 .description(project.getDescription())
-                .key(project.getKey())
                 .baseUrl(project.getBaseUrl())
-                .issues(issues)
+                .projectTypeKey(project.getProjectTypeKey()) // <-- missing before
                 .lead(lead)
                 .users(users)
+                .issues(issues)
                 .build();
-
     }
+
 }

@@ -1,4 +1,4 @@
-package com.ii.pw.edu.pl.master.thesis.project.model.helper;
+package com.ii.pw.edu.pl.master.thesis.project.dto.helper;
 
 
 import com.ii.pw.edu.pl.master.thesis.project.enums.JiraApiEndpoint;

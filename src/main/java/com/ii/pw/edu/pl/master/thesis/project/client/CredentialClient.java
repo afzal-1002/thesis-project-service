@@ -1,47 +1,67 @@
 package com.ii.pw.edu.pl.master.thesis.project.client;
 
 
+import com.ii.pw.edu.pl.master.thesis.project.configuration.FeignSecurityConfiguration;
 import com.ii.pw.edu.pl.master.thesis.project.dto.credentials.UserCredentialRequest;
 import com.ii.pw.edu.pl.master.thesis.project.dto.credentials.UserCredentialResponse;
-import com.ii.pw.edu.pl.master.thesis.project.dto.user.JiraUserMeResponse;
+import com.ii.pw.edu.pl.master.thesis.project.dto.user.TokenRequest;
 import com.ii.pw.edu.pl.master.thesis.project.dto.user.TokenResponse;
 import com.ii.pw.edu.pl.master.thesis.project.dto.user.UserSummary;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient( name = "user-service", contextId = "jiraCredentialClient",
-        url = "${user.service.base-url}",  path = "/api/wut/credentials"
+@FeignClient( name = "user-service",
+        contextId = "jiraCredentialClient",
+        url = "${user.service.url}",
+        path = "/api/wut/credentials",
+        configuration = FeignSecurityConfiguration.class
 )
 public interface CredentialClient {
 
+    // CREATE
     @PostMapping
-    UserCredentialResponse addCredential(@RequestBody UserCredentialRequest request);
+    UserCredentialResponse addCredential(@RequestBody UserCredentialRequest credential);
 
+    // READ (current)
+    @GetMapping("/me")
+    UserCredentialResponse getMine();
 
-    @GetMapping("/{id}")
-    UserCredentialResponse getById(@PathVariable Long id);
-
-    @GetMapping("/by-user/{userId}")
-    UserCredentialResponse getByUserId(@PathVariable Long userId);
-
+    // READ (utility)
     @GetMapping("/by-username")
-    UserCredentialResponse getByUsername(@RequestParam String username);
+    UserCredentialResponse getByUsername(@RequestParam("username") String username);
 
+    @GetMapping("/{credentialId}")
+    UserCredentialResponse getById(@PathVariable("credentialId") Long credentialId);
 
     @GetMapping("/user-summary/by-account-id")
-     UserSummary getUserSummaryByAccountId(@RequestParam String accountId);
+    UserSummary getUserSummaryByAccountId(@RequestParam("accountId") String accountId);
 
-    @PutMapping("/me/base-url")
-    UserCredentialResponse updateBaseUrlForCurrentUser(@RequestParam String username,
-                                                       @RequestParam String oldUrl,
-                                                       @RequestParam String newUrl);
+    // UPDATE (current)
+    @PutMapping("/base-url")
+    UserCredentialResponse updateBaseURLForCurrentUser(@RequestParam("oldURL") String oldURL,
+                                                       @RequestParam("newURL") String newURL);
+
+    @PutMapping("/token")
+    UserCredentialResponse updateToken(@RequestBody TokenRequest request);
+
+    // DELETE
+    @DeleteMapping("/me")
+    UserCredentialResponse deleteMine();
+
     @DeleteMapping("/by-username")
-    UserCredentialResponse deleteByUsername(@RequestParam String username);
+    UserCredentialResponse deleteByUsername(@RequestParam("username") String username);
 
+    // EXISTENCE
+    @GetMapping("/exists/username")
+    Boolean existsByJiraUsername(@RequestParam("username") String username);
+
+    @GetMapping("/exists/account-id")
+    Boolean existsByAccountId(@RequestParam("accountId") String accountId);
+
+    // TOKEN HELPERS
     @PostMapping("/encrypt/token")
-    TokenResponse encryptToken(@RequestBody String plainText);
+    TokenResponse encryptToken(@RequestBody TokenRequest request);
 
     @PostMapping("/decrypt/token")
-    TokenResponse decryptToken(@RequestBody String encryptedToken);
-
+    TokenResponse decryptToken(@RequestBody TokenRequest request);
 }

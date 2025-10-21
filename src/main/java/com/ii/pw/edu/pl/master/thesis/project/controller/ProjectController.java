@@ -1,6 +1,8 @@
 package com.ii.pw.edu.pl.master.thesis.project.controller;
 
+import com.ii.pw.edu.pl.master.thesis.project.client.ProfileClient;
 import com.ii.pw.edu.pl.master.thesis.project.client.UserClient;
+import com.ii.pw.edu.pl.master.thesis.project.dto.appuser.AuthUserDTO;
 import com.ii.pw.edu.pl.master.thesis.project.dto.project.*;
 import com.ii.pw.edu.pl.master.thesis.project.dto.user.UserSummary;
 import com.ii.pw.edu.pl.master.thesis.project.service.ProjectService;
@@ -17,6 +19,7 @@ import java.util.List;
 public class ProjectController {
 
     private final UserClient userClient;
+    private final ProfileClient profileClient;
     private final ProjectService projectService;
 
     // ──────────────────────────────────────────────────────────────
@@ -26,6 +29,12 @@ public class ProjectController {
     public List<UserSummary> getAllUsersViaUserService() {
         return userClient.getAllUsers();
     }
+
+    @GetMapping("/authUser")
+    public AuthUserDTO getAuthUser() {
+        return profileClient.getCurrentUserProfile();
+    }
+
 
     // ──────────────────────────────────────────────────────────────
     // CREATE
@@ -56,20 +65,20 @@ public class ProjectController {
     // ──────────────────────────────────────────────────────────────
     /** List Jira projects for provided username (recommended). */
     @PostMapping("/list/jira")
-    public ResponseEntity<List<JiraProjectResponse>> listJira(@RequestBody ListProjectsRequest request) {
-        return ResponseEntity.ok(projectService.getAllProjectsFromJira(request));
+    public ResponseEntity<List<JiraProjectResponse>> listJira(@RequestParam(name = "baseUrl") String baseUrl) {
+        return ResponseEntity.ok(projectService.getAllProjectsFromJira(baseUrl));
     }
 
     /** List Jira projects for current authenticated principal (if your service reads SecurityContext). */
-    @GetMapping("/list/jira/current")
-    public ResponseEntity<List<JiraProjectResponse>> listJiraForCurrent(@RequestBody ListProjectsRequest request) {
-        return ResponseEntity.ok(projectService.getAllProjectsFromJira(request));
+    @PostMapping("/list/jira/current")
+    public ResponseEntity<List<JiraProjectResponse>> getAllProjectsFromJiraForCurrentUserUrl() {
+        return ResponseEntity.ok(projectService.getAllProjectsFromJiraForCurrentUserUrl());
     }
 
     /** List local DB projects scoped by user's stored baseUrl. */
     @PostMapping("/list/local")
-    public ResponseEntity<List<ProjectResponse>> listLocal(@RequestBody ListProjectsRequest request) {
-        return ResponseEntity.ok(projectService.getAllProjectsFromLocalDb(request));
+    public ResponseEntity<List<ProjectResponse>> listLocal(@RequestParam(name = "baseUrl") String baseUrl) {
+        return ResponseEntity.ok(projectService.getAllProjectsFromLocalDb(baseUrl));
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -85,10 +94,8 @@ public class ProjectController {
     }
 
     /** Update a local project by Jira KEY (e.g., ABC). */
-    @PutMapping("/by-key/{key}")
-    public ResponseEntity<ProjectResponse> updateByKey(
-            @PathVariable Long id,
-            @RequestBody UpdateProjectRequest request
+    @PutMapping("/by-key/{id}")
+    public ResponseEntity<ProjectResponse> updateByKey( @PathVariable Long id, @RequestBody UpdateProjectRequest request
     ) {
         return ResponseEntity.ok(projectService.updateProject(id, request));
     }
@@ -105,33 +112,33 @@ public class ProjectController {
 
     /** Delete a single local project by KEY only. Returns true if deleted. */
     @DeleteMapping("/local/{projectKey}")
-    public ResponseEntity<Boolean> deleteLocalByKey(@RequestBody DeleteProjectRequest request) {
-        boolean ok = projectService.deleteLocalProjectByKey(request);
+    public ResponseEntity<Boolean> deleteLocalByKey( @PathVariable String projectKey) {
+        boolean ok = projectService.deleteLocalProjectByKey(projectKey);
         return ResponseEntity.ok(ok);
     }
 
     /** Delete a Jira project by key or id (Jira only). No content on success. */
     @DeleteMapping("/jira/{projectKeyOrId}")
-    public void deleteJira(@RequestBody DeleteProjectRequest request) {
-        projectService.deleteJiraProjectByKeyOrId(request.getProjectKey(), request.getUsername());
+    public void deleteJira(@PathVariable String projectKeyOrId) {
+        projectService.deleteJiraProjectByKeyOrId(projectKeyOrId);
     }
 
     /** Delete from LOCAL DB by key and return a human-readable message. */
     @DeleteMapping("/local/db/{projectKey}")
-    public ResponseEntity<Boolean> deleteLocalDb(@RequestBody DeleteProjectRequest request) {
-        return ResponseEntity.ok(projectService.deleteLocalProjectByKey(request));
+    public ResponseEntity<Boolean> deleteLocalDb(@PathVariable String projectKey) {
+        return ResponseEntity.ok(projectService.deleteLocalProjectByKey(projectKey));
     }
 
     /** Delete from JIRA by key or id and return a human-readable message. */
     @DeleteMapping("/jira/db/{projectKeyOrId}")
-    public ResponseEntity<String> deleteJiraDb(@RequestBody DeleteProjectRequest request) {
-        return ResponseEntity.ok(projectService.deleteProjectFromJiraAndLocalDb(request));
+    public ResponseEntity<String> deleteJiraDb(@PathVariable String projectKeyOrId) {
+        return ResponseEntity.ok(projectService.deleteProjectFromJiraAndLocalDb(projectKeyOrId));
     }
 
     /** Delete from Jira and also remove local copy (by key or id). */
     @DeleteMapping("/jira-and-local/{projectKeyOrId}")
-    public ResponseEntity<String> deleteJiraAndLocal(@RequestBody DeleteProjectRequest request) {
-        return ResponseEntity.ok(projectService.deleteProjectFromJiraAndLocalDb(request));
+    public ResponseEntity<String> deleteJiraAndLocal(@PathVariable String projectKeyOrId) {
+        return ResponseEntity.ok(projectService.deleteProjectFromJiraAndLocalDb(projectKeyOrId));
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -144,12 +151,12 @@ public class ProjectController {
     // ──────────────────────────────────────────────────────────────
     /** Sync ALL Jira projects -> local DB for current principal. */
     @PostMapping("/sync/all")
-    public ResponseEntity<List<ProjectResponse>> syncAllFromJira(@RequestBody ListProjectsRequest request) {
-        return ResponseEntity.ok(projectService.syncAllProjects(request));
+    public ResponseEntity<List<ProjectResponse>> syncAllFromJira() {
+        return ResponseEntity.ok(projectService.syncAllProjectsFromJira());
     }
 
     /** Sync a single project (by Jira key or id) -> local DB for current principal. */
-    @PostMapping("/sync/{keyOrId}")
+    @PostMapping("/sync/Key")
     public ResponseEntity<ProjectResponse> syncOne(@RequestBody SyncProjectRequest request) {
         return ResponseEntity.ok(projectService.syncProjectByKeyOrId(request));
     }
@@ -160,12 +167,6 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.syncProjectFromJira(request));
     }
 
-    /** Set Jira project lead, then refresh local copy. */
-    @PostMapping("/lead")
-    public ResponseEntity<ProjectResponse> setLead(@RequestBody SetProjectLeadRequest request) {
-        return ResponseEntity.ok(projectService.setProjectLead(request));
-    }
-
     /** Push LOCAL -> Jira for one project (then refresh local copy). */
     @PostMapping("/sync/local-to-jira")
     public ResponseEntity<ProjectResponse> syncLocalToJira(@RequestBody SyncProjectRequest request) {
@@ -174,7 +175,18 @@ public class ProjectController {
 
     /** Push LOCAL -> Jira for ALL local projects at user's baseUrl. */
     @PostMapping("/sync/local-to-jira/all")
-    public ResponseEntity<List<ProjectResponse>> syncAllLocalToJira(@RequestBody SyncProjectRequest request) {
-        return ResponseEntity.ok(projectService.syncAllProjectsFromLocalToJira(request));
+    public ResponseEntity<List<ProjectResponse>> syncAllLocalToJira() {
+        return ResponseEntity.ok(projectService.syncAllProjectsFromLocalToJira());
     }
+
+
+    /** Set Jira project lead, then refresh local copy. */
+    @PostMapping("/lead")
+    public ResponseEntity<ProjectResponse> setLead(@RequestBody SetProjectLeadRequest request) {
+        return ResponseEntity.ok(projectService.setProjectLead(request));
+    }
+
+
+
+
 }

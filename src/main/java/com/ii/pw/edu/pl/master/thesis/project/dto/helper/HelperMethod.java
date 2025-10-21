@@ -1,4 +1,4 @@
-package com.ii.pw.edu.pl.master.thesis.project.model.helper;
+package com.ii.pw.edu.pl.master.thesis.project.dto.helper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class SyncProjectRequest {
     private String projectKey;
-    private String username;
 }

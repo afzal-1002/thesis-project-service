@@ -2,7 +2,7 @@ package com.ii.pw.edu.pl.master.thesis.project.configuration;
 
 import com.ii.pw.edu.pl.master.thesis.project.exceptions.ResourceNotFoundException;
 import com.ii.pw.edu.pl.master.thesis.project.exceptions.UserNotAuthorizedException;
-import com.ii.pw.edu.pl.master.thesis.project.service.EncryptionService;
+import com.ii.pw.edu.pl.master.thesis.project.dto.helper.EncryptionDecryption;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -20,7 +20,7 @@ import java.util.Objects;
 public class JiraClientConfiguration {
 
     private final RestTemplate restTemplate;
-    private final EncryptionService encryptionService;
+    private final EncryptionDecryption encryptionService;
 
     // ─────────────────────────── Public API ───────────────────────────
 

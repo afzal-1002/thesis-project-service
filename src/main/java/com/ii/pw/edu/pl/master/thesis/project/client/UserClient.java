@@ -1,6 +1,7 @@
 package com.ii.pw.edu.pl.master.thesis.project.client;
 
 
+import com.ii.pw.edu.pl.master.thesis.project.configuration.FeignSecurityConfiguration;
 import com.ii.pw.edu.pl.master.thesis.project.dto.user.LoginRequest;
 import com.ii.pw.edu.pl.master.thesis.project.dto.user.RegisterUserRequest;
 import com.ii.pw.edu.pl.master.thesis.project.dto.user.UserRequest;
@@ -10,7 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient( name = "user-service",  url = "${user.service.base-url}", path = "/api/wut/users")
+@FeignClient( name = "user-service",
+        url = "${user.service.url}",
+        path = "/api/wut/users",
+        configuration = FeignSecurityConfiguration.class
+)
 public interface UserClient {
 
     @PostMapping("/register")
