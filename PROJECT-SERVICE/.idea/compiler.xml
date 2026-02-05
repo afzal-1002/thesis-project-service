@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+      </profile>
+      <profile name="Annotation profile for Project-Service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
+        </processorPath>
+        <module name="PROJECT-SERVICE" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="AI-INTEGRATION" target="21" />
+      <module name="API-GATEWAY" target="21" />
+      <module name="ISSUES-SERVICE" target="21" />
+      <module name="SERVICE-REGISTRY" target="21" />
+      <module name="USER-SERVICE" target="21" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="AI-INTEGRATION" options="-parameters" />
+      <module name="API-GATEWAY" options="-parameters" />
+      <module name="ISSUES-SERVICE" options="-parameters" />
+      <module name="PROJECT-SERVICE" options="-parameters" />
+      <module name="SERVICE-REGISTRY" options="-parameters" />
+      <module name="USER-SERVICE" options="-parameters" />
+    </option>
+  </component>
+</project>

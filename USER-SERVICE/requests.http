@@ -1,0 +1,21 @@
+### Health
+@baseUrl = http://localhost:8081
+GET {{baseUrl}}/actuator/health
+
+### Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "afzal",
+  "password": "123456"
+}
+
+### Login
+POST {{baseUrl}}/api/wut/users/register
+Content-Type: application/json
+
+{
+  "username": "afzal",
+  "password": "123456"
+}
